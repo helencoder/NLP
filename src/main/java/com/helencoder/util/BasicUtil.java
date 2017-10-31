@@ -3,7 +3,7 @@ package com.helencoder.util;
 import java.util.Random;
 
 /**
- * 公公方法类
+ * 公共方法类
  *
  * Created by zhenghailun on 2017/10/31.
  */
