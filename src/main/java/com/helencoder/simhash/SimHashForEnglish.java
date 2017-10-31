@@ -1,9 +1,9 @@
-package simhash;
+package com.helencoder.simhash;
 
 import java.math.BigInteger;
 import java.util.StringTokenizer;
 /**
- * SimHash实现步骤:
+ * SimHashForEnglish(英文分词)实现步骤:
  *  1、对文本分词，得到N维特征向量（默认为64维）
  *  2、为分词设置权重（tf-idf）
  *  3、为特征向量计算哈希
@@ -13,17 +13,17 @@ import java.util.StringTokenizer;
  *
  * Created by helencoder on 2017/10/30.
  */
-public class SimHash {
+public class SimHashForEnglish {
     private String tokens;
     private BigInteger strSimHash;
     private int hashbits = 64;
 
-    public SimHash(String tokens) {
+    public SimHashForEnglish(String tokens) {
         this.tokens = tokens;
         this.strSimHash = this.simHash();
     }
 
-    public SimHash(String tokens, int hashbits) {
+    public SimHashForEnglish(String tokens, int hashbits) {
         this.tokens = tokens;
         this.hashbits = hashbits;
         this.strSimHash = this.simHash();
@@ -74,7 +74,7 @@ public class SimHash {
         }
     }
 
-    public int hammingDistance(SimHash other) {
+    public int hammingDistance(SimHashForEnglish other) {
         BigInteger m = new BigInteger("1").shiftLeft(this.hashbits).subtract(
                 new BigInteger("1"));
         BigInteger x = this.strSimHash.xor(other.strSimHash).and(m);
@@ -88,13 +88,13 @@ public class SimHash {
 
     public static void main(String[] args) {
         String s = "This is a test string for testing";
-        SimHash hash1 = new SimHash(s, 64);
+        SimHashForEnglish hash1 = new SimHashForEnglish(s, 64);
         System.out.println(hash1.strSimHash + "  " + hash1.strSimHash.bitLength());
         s = "This is a test string for testing also";
-        SimHash hash2 = new SimHash(s, 64);
+        SimHashForEnglish hash2 = new SimHashForEnglish(s, 64);
         System.out.println(hash2.strSimHash+ "  " + hash2.strSimHash.bitLength());
         s = "This is a test string for testing als";
-        SimHash hash3 = new SimHash(s, 64);
+        SimHashForEnglish hash3 = new SimHashForEnglish(s, 64);
         System.out.println(hash3.strSimHash+ "  " + hash3.strSimHash.bitLength());
         System.out.println("============================");
         System.out.println(hash1.hammingDistance(hash2));
