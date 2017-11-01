@@ -12,11 +12,11 @@ public class LCS {
         String str1 = "fjssharpsword";
         String str2 = "helloworld";
 
-        String lcsStr = lcs(str1, str2);
+        String lcsStr = lcsStr(str1, str2);
         System.out.println(lcsStr);
     }
 
-    public static String lcs(String str1, String str2) {
+    public static String lcsStr(String str1, String str2) {
         if (str1.isEmpty() || str2.isEmpty()) {
             return "";
         }
@@ -64,6 +64,8 @@ public class LCS {
 
     /**
      * 最长子序列匹配--输出最长子序列
+     *
+     * 矩阵递归遍历输出
      */
     private static StringBuffer lcsRec(int[][] matrix, String s1, String s2, int row, int col, StringBuffer sb) {
         if (row == 0 || col == 0) {
