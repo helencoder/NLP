@@ -17,7 +17,11 @@ public class LCS {
     }
 
     public static String lcsStr(String str1, String str2) {
-        if (str1.isEmpty() || str2.isEmpty()) {
+        // 参数检查
+        if(str1 == null || str2 == null){
+            return "";
+        }
+        if(str1.equals("") || str2.equals("")){
             return "";
         }
 
@@ -84,5 +88,4 @@ public class LCS {
     }
 
 }
-
 
