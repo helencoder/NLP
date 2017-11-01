@@ -4,12 +4,26 @@ import java.io.File;
 import java.util.Scanner;
 
 /**
- * KMP算法
+ * KMP算法(字符串查找)
  *
  * Created by zhenghailun on 2017/10/31.
  */
 public class KMP {
 
+    public static void main(String[] args) throws Exception {
+        //从文件读入数据
+        KMP kmp = new KMP();
+        String str= "AAAAAAAADRFWASD";
+        int ans = kmp.search(str,"FW");
+        //输出答案
+        if (ans != -1) {
+            System.out.println(ans);
+        }
+    }
+
+    /**
+     * KMP算法查找字符串出现位置,不存在返回-1
+     */
     public int search(String str, String pattern) {
         char[] strs = str.toCharArray();
         char[] patterns = pattern.toCharArray();
@@ -28,6 +42,9 @@ public class KMP {
         return -1;
     }
 
+    /**
+     * KMP算法移动策略
+     */
     private int[] lps(String pattern) {
         int j = 0, i = 1, L = pattern.length();
         int[] res = new int[L];
@@ -53,23 +70,5 @@ public class KMP {
         return res;
     }
 
-    public static void main(String[] args) throws Exception {
-        //从文件读入数据
-        KMP kmp = new KMP();
-        Scanner input = new Scanner(new File("test.txt"));
-        int count = 0;
-        long starttime = System.currentTimeMillis();
-        while (input.hasNext()) {
-            count++;
-            String text = input.next();
-            int ans = kmp.search(text,"4GK1QFBV1N49J12QgfvhDbu27");
-            //输出答案
-            if (ans != -1) {
-                System.out.println(ans);
-            }
-        }
-        System.out.println(count);
-        long endStarttime = System.currentTimeMillis();
-        System.out.println(endStarttime - starttime + "ms");
-    }
+
 }
