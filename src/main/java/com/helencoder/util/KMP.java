@@ -10,21 +10,10 @@ import java.util.Scanner;
  */
 public class KMP {
 
-    public static void main(String[] args) throws Exception {
-        //从文件读入数据
-        KMP kmp = new KMP();
-        String str= "AAAAAAAADRFWASD";
-        int ans = kmp.search(str,"FW");
-        //输出答案
-        if (ans != -1) {
-            System.out.println(ans);
-        }
-    }
-
     /**
      * KMP算法查找字符串出现位置,不存在返回-1
      */
-    public int search(String str, String pattern) {
+    public static int search(String str, String pattern) {
         char[] strs = str.toCharArray();
         char[] patterns = pattern.toCharArray();
         int L = strs.length, N = patterns.length, i = 0, j = 0; // i: str pointer, j: pattern pointer
@@ -45,7 +34,7 @@ public class KMP {
     /**
      * KMP算法移动策略
      */
-    private int[] lps(String pattern) {
+    private static int[] lps(String pattern) {
         int j = 0, i = 1, L = pattern.length();
         int[] res = new int[L];
         char[] chars = pattern.toCharArray();
@@ -69,6 +58,5 @@ public class KMP {
         }
         return res;
     }
-
 
 }
