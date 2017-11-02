@@ -163,4 +163,96 @@ public class Word2Vec {
     public int getWords() {
         return words;
     }
+
+    /**
+     * Word2Vec模型加载(Java训练模型)
+     *
+     * @param modelFile 模型文件路径
+     */
+    public void loadGoogleModel(String modelFile) throws IOException {
+        DataInputStream dis = null;
+        BufferedInputStream bis = null;
+        double len = 0;
+        float vector = 0;
+        try {
+            bis = new BufferedInputStream(new FileInputStream(modelFile));
+            dis = new DataInputStream(bis);
+            //读取词数
+            words = Integer.parseInt(readString(dis));
+            // //大小
+            size = Integer.parseInt(readString(dis));
+            String word;
+            float[] vectors = null;
+            for (int i = 0; i < words; i++) {
+                word = readString(dis);
+                vectors = new float[size];
+                len = 0;
+                for (int j = 0; j < size; j++) {
+                    vector = readFloat(dis);
+                    len += vector * vector;
+                    vectors[j] = (float) vector;
+                }
+                len = Math.sqrt(len);
+
+                for (int j = 0; j < size; j++) {
+                    vectors[j] /= len;
+                }
+
+                wordMap.put(word, vectors);
+                dis.read();
+            }
+        } finally {
+            bis.close();
+            dis.close();
+        }
+    }
+
+    public static float readFloat(InputStream is) throws IOException {
+        byte[] bytes = new byte[4];
+        is.read(bytes);
+        return getFloat(bytes);
+    }
+
+    /**
+     * 读取一个float
+     *
+     * @param b
+     * @return
+     */
+    public static float getFloat(byte[] b) {
+        int accum = 0;
+        accum = accum | (b[0] & 0xff) << 0;
+        accum = accum | (b[1] & 0xff) << 8;
+        accum = accum | (b[2] & 0xff) << 16;
+        accum = accum | (b[3] & 0xff) << 24;
+        return Float.intBitsToFloat(accum);
+    }
+
+    private static final int MAX_SIZE = 50;
+    /**
+     * 读取一个字符串
+     *
+     * @param dis
+     * @return
+     * @throws IOException
+     */
+    private static String readString(DataInputStream dis) throws IOException {
+        byte[] bytes = new byte[MAX_SIZE];
+        byte b = dis.readByte();
+        int i = -1;
+        StringBuilder sb = new StringBuilder();
+        while (b != 32 && b != 10) {
+            i++;
+            bytes[i] = b;
+            b = dis.readByte();
+            if (i == 49) {
+                sb.append(new String(bytes));
+                i = -1;
+                bytes = new byte[MAX_SIZE];
+            }
+        }
+        sb.append(new String(bytes, 0, i + 1));
+        return sb.toString();
+    }
+
 }
