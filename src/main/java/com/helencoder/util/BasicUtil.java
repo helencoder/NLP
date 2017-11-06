@@ -60,4 +60,25 @@ public class BasicUtil {
         return LCS.commonString(str1, str2);
     }
 
+    /**
+     * 数组转换为字符串
+     * @param list
+     * @param delimiter 分隔符
+     * @return 字符串
+     */
+    public static String mkString(List<String> list, String delimiter) {
+        StringBuffer sb = new StringBuffer();
+        for (String data : list) {
+            sb.append(data);
+            sb.append(delimiter);
+        }
+        String str = sb.toString();
+
+        if (str.isEmpty()) {
+            return "";
+        } else {
+            return str.substring(0, str.lastIndexOf(delimiter));
+        }
+    }
+
 }
