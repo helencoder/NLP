@@ -3,6 +3,8 @@ package com.helencoder.util;
 import com.helencoder.util.json.JSONException;
 import com.helencoder.util.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by helencoder on 2017/9/18.
  */
 public class LtpUtil {
-    private static String api_key = "31u359Z1F6ixrIEn7cKhPPhirv8P5fQvoAfZIJwd";
+    private static String api_key = "l1v3x7B6k9kYJCwxQytFkp7BPixDQXRKOZvo4m2a";
 
     public static void main(String[] args) {
         // 测试用例
@@ -52,7 +54,7 @@ public class LtpUtil {
         String x = "n";
         String t = "dp";
 
-        String response = ltpRequest(s, x, t);
+        String response = ltpRequest(s, x, t, false);
         List<JSONObject> originalList = ltpResponseParse(response);
 
         // 分词优化
@@ -86,22 +88,29 @@ public class LtpUtil {
      * @param s 输入字符串,在xml选项x为n的时候,代表输入句子,为y时代表输入xml
      * @param x 用以志明是否使用xml
      * @param t 用以指明分析目标,t可以为分词(ws),词性标注(pos),命名实体识别(ner),依存句法分析(dp),语义角色标注(srl)或者全部任务(all)
-     *
+     * @param flag 在线 true；离线 false
      * @return json数据(自定义方法解析)
      */
-    public static String ltpRequest(String s, String x, String t) {
-        // 离线版本
-        String url = "http://99.6.184.75:12345/ltp";
-        String param = "s=" + s + "&x=" + x + "&t=" + t;
-        String response = Request.post(url, param);
+    public static String ltpRequest(String s, String x, String t, boolean flag) {
+        String response = "";
+        if (flag) {
+            // 在线版本
+            String api_url = "http://api.ltp-cloud.com/analysis/";
+            String pattern = "all";
+            String format = "json";
 
-        // 在线版本
-//        String api_url = "http://api.ltp-cloud.com/analysis/";
-//        String pattern = "all";
-//        String format = "json";
-//
-//        String param = "api_key=" + api_key + "&text=" + s + "&pattern=" + pattern + "&format=" + format;
-//        String response = Request.post(api_url, param);
+            try {
+                String param = "api_key=" + api_key + "&text=" + URLEncoder.encode(s, "UTF-8") + "&pattern=" + pattern + "&format=" + format;
+                response = Request.get(api_url, param);
+            } catch (UnsupportedEncodingException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            // 离线版本
+            String url = "http://99.6.184.75:12345/ltp";
+            String param = "s=" + s + "&x=" + x + "&t=" + t;
+            response = Request.post(url, param);
+        }
 
         return response;
     }

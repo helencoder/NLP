@@ -32,7 +32,7 @@ public class Preprocess {
         String x = "n";
         String t = "all";   // 主要利用词性标注、命名实体识别、依存句法分析
         // 请求LTP组件
-        String response = ltpRequest(s, x, t);
+        String response = ltpRequest(s, x, t, false);
         List<JSONObject> jsonObjectList = ltpResponseParse(response);
 
         // 过滤分词

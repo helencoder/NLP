@@ -29,7 +29,7 @@ public class ObtainPairs {
         String x = "n";
         String t = "all";   // 主要利用词性标注、命名实体识别、依存句法分析
 
-        String response = ltpRequest(s, x, t);
+        String response = ltpRequest(s, x, t, false);
         List<JSONObject> originalList = ltpResponseParse(response);
 
         String coreWord = "";
