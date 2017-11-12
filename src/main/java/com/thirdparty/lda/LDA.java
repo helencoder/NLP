@@ -34,6 +34,20 @@ import org.kohsuke.args4j.*;
  * 此处运行需要添加args命令,示例如下:
  *  -est -alpha 0.2 -beta 0.1 -ntopics 100 -niters 1000 -savestep 100 -twords 100 -dir  models\casestudy-en -dfile "newdocs.dat"
  *  具体参数含义,可参见LdaTrain文件
+ *  JGibbLDA的参数基本上有下面几个：
+ *
+ * 	#-est 此参数初次训练LDA模型;
+ * 	#-estc:此参数用于从已有的模型当中训练LDA模型;
+ * 	#-inf: 此参数用于对新的文档进行测试;
+ * 	#-model <string>: 已有的模型的名称;
+ * 	#-alpha<double>:α超参数，默认是50/K，K为主题数量;
+ * 	#-beta <double>: β超参数，默认为0.1;
+ * 	#-ntopics <int>: 主题数量，默认100;
+ * 	#-niters <int>: Gibbs抽样迭代次数，默认为2000;
+ * 	#-savestep <int>: 保持模型的迭代次数，即每迭代多少次将保持一次结果模型。默认为200;
+ * 	#-twords <int>: 每个主题最可能的单车数量。默认为0，如果设定大于0，比如20，JGibbLDA将会根据此参数在每次保持模型时为每个主题打印出最可能的20个词;
+ * 	#-dir <string>: 输入词集文件夹目录;此目录也是模型结果输出目录
+ * 	#-dfile <string>: 输入词集文件名称
  */
 public class LDA {
 	
