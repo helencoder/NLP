@@ -117,9 +117,10 @@ public class FileIO {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filepath)));
             for (String line = br.readLine(); line != null; line = br.readLine()) {
-                //System.out.println(line);
                 // handle
-                fileDataList.add(line);
+                if (line.length() != 0) {
+                    fileDataList.add(line);
+                }
             }
             br.close();
         } catch (IOException ex) {
