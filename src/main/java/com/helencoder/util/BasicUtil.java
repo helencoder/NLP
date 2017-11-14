@@ -1,7 +1,6 @@
 package com.helencoder.util;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * 公共方法类
@@ -80,5 +79,32 @@ public class BasicUtil {
             return str.substring(0, str.lastIndexOf(delimiter));
         }
     }
+
+    /**
+     * Map排序(按键值排序)
+     * @param map (Map)
+     * @param flag true降序 false升序
+     * @return sortedMap
+     */
+    public static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map, boolean flag) {
+        List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+                if (flag) { // 降序
+                    return o2.getValue().compareTo(o1.getValue());
+                } else {    // 升序
+                    return o1.getValue().compareTo(o2.getValue());
+                }
+            }
+        });
+
+        Map<K, V> result = new LinkedHashMap<K, V>();
+        for (Map.Entry<K, V> entry : list) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+
+        return result;
+    }
+
 
 }
