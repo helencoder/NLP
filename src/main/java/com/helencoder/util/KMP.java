@@ -1,6 +1,9 @@
 package com.helencoder.util;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -9,6 +12,26 @@ import java.util.Scanner;
  * Created by zhenghailun on 2017/10/31.
  */
 public class KMP {
+
+    /**
+     * 获取字符串中子字符串出现的次数
+     */
+    public static int getOccurrences(String str, String pattern) {
+        int count = 0;
+        int res = -1;
+        do {
+            res = search(str, pattern);
+
+            if (res != -1) {
+                str = str.substring(res + pattern.length());
+                count++;
+            }
+
+        } while (res != -1);
+
+        return count;
+    }
+
 
     /**
      * KMP算法查找字符串出现位置,不存在返回-1
