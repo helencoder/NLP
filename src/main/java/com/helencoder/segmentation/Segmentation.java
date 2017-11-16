@@ -34,6 +34,14 @@ public class Segmentation {
     }
 
     /**
+     * 获取原始HanLP分词组件类
+     */
+    public Segment getInstance() {
+        return segment;
+    }
+
+
+    /**
      * 分词、List形式输出结果
      *
      * @param content 文本内容
