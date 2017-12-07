@@ -64,6 +64,7 @@ public class Learn {
             int wordCount = 0;
             int lastWordCount = 0;
             int wordCountActual = 0;
+
             while ((temp = br.readLine()) != null) {
                 if (wordCount - lastWordCount > 10000) {
                     System.out.println("alpha:" + alpha + "\tProgress: "
@@ -75,6 +76,7 @@ public class Learn {
                         alpha = startingAlpha * 0.0001;
                     }
                 }
+
                 String[] strs = temp.split("[\t ]+");
                 wordCount += strs.length;
                 List<WordNeuron> sentence = new ArrayList<WordNeuron>();
@@ -105,6 +107,8 @@ public class Learn {
                 }
 
             }
+            br.close();
+
             System.out.println("Vocab size: " + wordMap.size());
             System.out.println("Words in train file: " + trainWordsCount);
             System.out.println("sucess train over!");
@@ -112,7 +116,7 @@ public class Learn {
     }
 
     /**
-     * skip gram 模型训练
+     * Skip-Gram 模型训练
      */
     private void skipGram(int index, List<WordNeuron> sentence, int b) {
         WordNeuron word = sentence.get(index);
@@ -350,6 +354,13 @@ public class Learn {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 获取训练好的词语模型
+     */
+    public Map<String, Neuron> getWordMap() {
+        return wordMap;
     }
 
     public int getLayerSize() {
