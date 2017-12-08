@@ -17,7 +17,7 @@ public class Doc2Vec {
     public static void main(String[] args) throws Exception {
         File result = new File("data/doc2vec/clinicalcases.txt");
 
-        Learn learn = new Learn();
+        LearnDoc2Vec learn = new LearnDoc2Vec();
 
         // 训练词向量
         learn.learnFile(result);

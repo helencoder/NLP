@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * Word2Vec模型学习构建
+ *  Word2Vec两种模型:CBOW、Skip-Gram
  *
  * Created by helencoder on 2017/10/16.
  */

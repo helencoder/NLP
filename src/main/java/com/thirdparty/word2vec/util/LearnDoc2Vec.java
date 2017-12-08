@@ -10,6 +10,7 @@ import java.util.*;
 
 /**
  * Doc2Vec模型训练
+ *  Doc2Vec两种模型:DM、DBOW
  *
  * Created by helencoder on 2017/12/7.
  */
@@ -22,20 +23,20 @@ public class LearnDoc2Vec {
     private double alpha = 0.025;
     private double startingAlpha = alpha;
     private int EXP_TABLE_SIZE = 1000;
-    private Boolean isCbow = false;
+    private Boolean isDM = false;
     private double[] expTable = new double[EXP_TABLE_SIZE];
     private int trainWordsCount = 0;
     private int MAX_EXP = 6;
 
     private Map<Integer, float[]> docVector = new HashMap<>();  // 文本向量
 
-    public LearnDoc2Vec(Boolean isCbow, Integer layerSize, Integer window,
+    public LearnDoc2Vec(Boolean isDM, Integer layerSize, Integer window,
                        Double alpha, Double sample, Map<String, Neuron> wordMap) {
 
         this.wordMap = wordMap;
         createExpTable();
-        if (isCbow != null) {
-            this.isCbow = isCbow;
+        if (isDM != null) {
+            this.isDM = isDM;
         }
         if (layerSize != null)
             this.layerSize = layerSize;
@@ -49,6 +50,10 @@ public class LearnDoc2Vec {
 
     public LearnDoc2Vec(Map<String, Neuron> wordMap) throws IOException {
         this.wordMap = wordMap;
+        createExpTable();
+    }
+
+    public LearnDoc2Vec() {
         createExpTable();
     }
 
@@ -114,16 +119,15 @@ public class LearnDoc2Vec {
 
                 for (int index = 0; index < sentence.size(); index++) {
                     nextRandom = nextRandom * 25214903917L + 11;
-                    if (isCbow) {
-                        cbowGram(index, sentNum, sentence, (int) nextRandom % window);
+                    if (isDM) {
+                        dm(index, sentNum, sentence, (int) nextRandom % window);
                     } else {
-                        skipGram(index, sentNum, sentence, (int) nextRandom % window);
+                        dbow(index, sentNum, sentence, (int) nextRandom % window);
                     }
                 }
 
                 sentNum++;
             }
-            br.close();
 
             System.out.println("Vocab size: " + wordMap.size());
             System.out.println("Words in train file: " + trainWordsCount);
@@ -132,14 +136,14 @@ public class LearnDoc2Vec {
     }
 
     /**
-     * Skip-Gram 模型训练
+     * DBOW(Distributed Bag of Words) 模型训练
      *
      * @param index
      * @param sentNum
      * @param sentence
      * @param b
      */
-    private void skipGram(int index, int sentNum, List<WordNeuron> sentence, int b) {
+    private void dbow(int index, int sentNum, List<WordNeuron> sentence, int b) {
         // TODO Auto-generated method stub
         WordNeuron word = sentence.get(index);
         int a, c = 0;
@@ -199,14 +203,14 @@ public class LearnDoc2Vec {
     }
 
     /**
-     * CBOM 连续词袋模型
+     * DM(Distributed Bag of Words) 模型训练
      *
      * @param index
      * @param sentNum
      * @param sentence
      * @param b
      */
-    private void cbowGram(int index, int sentNum, List<WordNeuron> sentence, int b) {
+    private void dm(int index, int sentNum, List<WordNeuron> sentence, int b) {
         WordNeuron word = sentence.get(index);
         int a, c = 0;
 
@@ -368,6 +372,13 @@ public class LearnDoc2Vec {
         }
     }
 
+    /**
+     * 获取训练好的词语模型
+     */
+    public Map<String, Neuron> getWordMap() {
+        return wordMap;
+    }
+
     public Map<Integer, float[]> getDocVector() {
         return docVector;
     }
@@ -406,10 +417,10 @@ public class LearnDoc2Vec {
     }
 
     public Boolean getIsCbow() {
-        return isCbow;
+        return isDM;
     }
 
-    public void setIsCbow(Boolean isCbow) {
-        this.isCbow = isCbow;
+    public void setIsCbow(Boolean isDM) {
+        this.isDM = isDM;
     }
 }
