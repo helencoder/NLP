@@ -9,26 +9,13 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.json.*;
 
-import javax.net.ssl.SSLContext;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +28,49 @@ import java.util.Map;
 public class HttpClientUtil {
 
     /**
-     * Get请求
+     * Get请求(不带参数)
+     *
+     * @param url 请求的url地址
+     * @return String 请求响应
+     */
+    public static String get(String url) {
+        // 创建默认的httpClient实例.
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        String response = "";
+        try {
+            // 创建HttpGet
+            HttpGet httpget = new HttpGet(url);
+            // 执行get请求.
+            CloseableHttpResponse httpResponse = httpclient.execute(httpget);
+            try {
+                // 获取响应实体
+                HttpEntity entity = httpResponse.getEntity();
+                if (entity != null) {
+                    response = EntityUtils.toString(entity, Consts.UTF_8);
+                }
+            } finally {
+                httpResponse.close();
+            }
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            // 关闭连接,释放资源
+            try {
+                httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return response;
+    }
+
+    /**
+     * Get请求(带参数)
      *
      * @param url 请求的url地址
      * @param paramsMap 参数名作为键,参数值作为键值
@@ -181,6 +210,69 @@ public class HttpClientUtil {
         }
 
         return response;
+    }
+
+    /**
+     * 下载url图片
+     *
+     * @param imgUrl 图片url
+     * @param storeFilePath 图片存储路径
+     */
+    public static void downloadImage(String imgUrl, String storeFilePath) {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        String response = "";
+        try {
+            // 创建httpGet
+            HttpGet httpget = new HttpGet(imgUrl);
+            // 执行get请求.
+            CloseableHttpResponse httpResponse = httpclient.execute(httpget);
+            // 文件存储
+            FileOutputStream output = new FileOutputStream(new File(storeFilePath));
+            try {
+                // 获取响应实体
+                HttpEntity entity = httpResponse.getEntity();
+                if (entity != null) {
+                    InputStream instream = entity.getContent();
+                    try {
+                        byte b[] = new byte[1024];
+                        int j = 0;
+                        while( (j = instream.read(b))!=-1){
+                            output.write(b,0,j);
+                        }
+                        output.flush();
+                        output.close();
+                    } catch (IOException ex) {
+                        // In case of an IOException the connection will be released
+                        // back to the connection manager automatically
+                        throw ex;
+                    } catch (RuntimeException ex) {
+                        // In case of an unexpected exception you may want to abort
+                        // the HTTP request in order to shut down the underlying
+                        // connection immediately.
+                        httpget.abort();
+                        throw ex;
+                    } finally {
+                        // Closing the input stream will trigger connection release
+                        try { instream.close(); } catch (Exception ignore) {}
+                    }
+                }
+            } finally {
+                httpResponse.close();
+            }
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            // 关闭连接,释放资源
+            try {
+                httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
