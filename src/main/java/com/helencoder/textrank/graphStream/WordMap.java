@@ -21,27 +21,36 @@ import static com.helencoder.util.LtpUtil.ltpResponseParse;
  * Created by helencoder on 2017/12/26.
  */
 public class WordMap {
+
+    // 样式设计
+    private static String stylesheet = "graph { fill-color: white;} " +
+            "node { text-background-mode: rounded-box; size: 10px, 15px; shape: circle; fill-color: blue; }" +
+            "node:clicked { fill-color: red; }" +
+            "edge { fill-color: green; shape: cubic-curve;}";
+
     public static void main(String[] args) throws Exception {
         // 词图展示
+        //System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 
         // 获取文本内容
-        String content = FileIO.getFileData("file.txt");
+        String content = FileIO.getFileData("public/map/6.txt");
 
         // 构造图
         Graph graph = new MultiGraph("mg");
         graph.setAutoCreate(true);
         graph.setStrict(false);
 
+        //graph.addAttribute("ui.stylesheet", stylesheet);
         graph.addAttribute("ui.quality");
         graph.addAttribute("ui.antialias");
 
         graph.display();
 
         // 共现关系
-        //CooccurrenceMap(graph, content);
+        CooccurrenceMap(graph, content);
 
         // LTP依存句法关系
-        LtpDependencyParserMap(graph, content);
+//        LtpDependencyParserMap(graph, content);
 
     }
 
@@ -163,8 +172,16 @@ public class WordMap {
 
         for (Node node : graph) {
             node.addAttribute("ui.label", node.getId());
+            //node.addAttribute("ui.style", "fill-color: rgb(0,100,255);");
+
         }
 
     }
+
+    /**
+     * 展示优化
+     *
+     */
+
 
 }
