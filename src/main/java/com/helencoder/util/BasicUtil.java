@@ -1,5 +1,7 @@
 package com.helencoder.util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -174,6 +176,28 @@ public class BasicUtil {
         String returnString = new String(c);
 
         return returnString;
+    }
+
+    /**
+     * 日期比较
+     *
+     * @param date1 日期1
+     * @param date2 日期2
+     * @param dateFormat 日期字符串格式(eg: yyyy-MM-dd HH:mm:ss)
+     *
+     * @return boolean 日期1是否在日期2之后
+     */
+    public static boolean compareDate(String date1, String date2, String dateFormat) {
+        DateFormat df = new SimpleDateFormat(dateFormat);
+        Boolean flag = false;
+        try {
+            Date dt1 = df.parse(date1);
+            Date dt2 = df.parse(date2);
+            flag = dt1.after(dt2);
+        } catch (Exception exception) {
+        }
+
+        return flag;
     }
 
 }
