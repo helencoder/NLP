@@ -50,7 +50,7 @@ public class WordMap {
 //        Graph textGraph = LtpDependencyParserMap(graph, content);
 
         // 展示
-        //optVisualisation(textGraph);
+        optVisualisation(textGraph);
 
         TextRankGS(textGraph);
     }

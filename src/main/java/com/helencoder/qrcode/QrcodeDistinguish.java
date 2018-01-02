@@ -38,6 +38,10 @@ public class QrcodeDistinguish {
                 image = ImageIO.read(new File(imgPath));
             }
 
+            if (image == null) {
+                return false;
+            }
+
             LuminanceSource source = new BufferedImageLuminanceSource(image);
             Binarizer binarizer = new HybridBinarizer(source);
             BinaryBitmap binaryBitmap = new BinaryBitmap(binarizer);

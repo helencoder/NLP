@@ -19,13 +19,6 @@ import java.util.List;
  */
 public class ExcelHandle {
 
-    public static void main(String[] args) {
-        // excel文件读写示例
-
-        createExcel("record.xls", "helen");
-    }
-
-
     /**
      * Excel文件创建
      *
