@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * TextRank优化版
  *  1、增加词性权重投票机制
- *  2、默认取名词作为输出
+ *  2、默认取名词性语素作为输出
  *
  * Created by zhenghailun on 2018/1/14.
  */
@@ -20,8 +20,8 @@ public class TextrankOptimization {
     private final static int max_iter = 200;
     private final static double min_diff = 0.001d;
 
-    private int nKeyword = 10;
-    private int window = 5;
+    private int nKeyword;
+    private int window;
     private String text;
     private List<Term> words;
     private List<List<Term>> sentences;
@@ -30,11 +30,12 @@ public class TextrankOptimization {
     private Map<String, Double> wordWeightMap;
     private Map<String, List<Term>> wordWindowMap;
     private Map<String, Double> wordRankMap;
+    private Map<String, Double> keywordsMap;
 
     // 分词组件
     private static Segment segment;
     private static CoreStopWordDictionary coreStopWordDictionary;
-    // 词性过滤、HanLP词性文件(首字母)
+    // 词性过滤、HanLP词性文件(名词性语素特殊处理)
     private String[] allow_speech_tags = {"a", "ad", "an", "i", "j", "l", "v", "vg", "vd", "vn"};
     // 句子停用词
     private String[] sentence_delimiters = {"?", "!", ";", "？", "！", "。", "；", "……", "…"};
@@ -71,6 +72,7 @@ public class TextrankOptimization {
         this.wordWeightMap = recordWordWeightMap();
         this.wordWindowMap = buildWordWindowMap();
         this.wordRankMap = getWordRankMap();
+        this.keywordsMap = sortMap(wordRankMap);
     }
 
     /**
@@ -81,23 +83,67 @@ public class TextrankOptimization {
     public List<String> getKeywordsList(int count) {
         this.nKeyword = count;
         List<String> keywordsList = new ArrayList<>();
+        if (text == null) {
+            return keywordsList;
+        }
 
-        Map<String, Double> keywordsMap = sortMap(wordRankMap);
-        List<String> keyword = new ArrayList<>();
         for (Map.Entry<String, Double> entry : keywordsMap.entrySet()) {
-            if (keyword.size() >= nKeyword) {
+            if (keywordsList.size() >= nKeyword) {
                 break;
             }
             if (filterByWord(entry.getKey())) {
-                System.out.println(entry.getKey() + "\t" + wordNatureMap.get(entry.getKey()));
                 //Word word = new Word(entry.getKey(), wordNatureMap.get(entry.getKey()), entry.getValue());
-                keyword.add(entry.getKey());
+                keywordsList.add(entry.getKey());
             }
         }
 
         return keywordsList;
     }
 
+    /**
+     * 获取关键短语(还可调整)
+     *
+     * @param count 关键短语个数
+     * @param minOccurNum 关键短语最小出现次数
+     */
+    public List<String> getKeyphrasesList(int count, int minOccurNum) {
+        List<String> keyphrasesList = new ArrayList<>();
+        if (text == null) {
+            return keyphrasesList;
+        }
+
+        List<String> keywordsList = new ArrayList<>();
+        for (Map.Entry<String, Double> entry : keywordsMap.entrySet()) {
+            if (keywordsList.size() >= 2 * count) {
+                break;
+            }
+            if (filterByWord(entry.getKey())) {
+                keywordsList.add(entry.getKey());
+                if (entry.getKey().length() > 2) {
+                    keyphrasesList.add(entry.getKey());
+                }
+            }
+        }
+
+        // 关键短语归集
+        Set<String> set = new HashSet<>();
+        for (String outerWord : keywordsList) {
+            for (String innerWord : keywordsList) {
+                if (outerWord.equals(innerWord)) {
+                    continue;
+                }
+
+                String tmpStr = outerWord + innerWord;
+                int num = getOccurNum(text, tmpStr);
+                if (num > minOccurNum && !set.contains(tmpStr)) {
+                    keyphrasesList.add(tmpStr);
+                    set.add(tmpStr);
+                }
+            }
+        }
+
+        return keyphrasesList;
+    }
 
     /**
      * 构建词语网络窗口(按句子划分)
@@ -149,17 +195,15 @@ public class TextrankOptimization {
                 String key = entry.getKey();
                 List<Term> value = entry.getValue();
                 double weight = wordWeightMap.get(key);
-                // 按照textrank公式构造对应关系
-                //map.put(key, 1 - d);  // 初始单词权重均置为0
-                map.put(key, (1 - d) + d * weight);  // 初始单词权重均置为词性权重
+                // 初始单词权重均置为词性权重
+                map.put(key, (1 - d) + d * weight);
                 for (Term term : value) {
                     int size = wordWindowMap.get(term.word).size();
                     if (key.equals(term.word) || size == 0 || !filter(term)) {
                         continue;
                     }
                     double innerWeight = wordWeightMap.get(term.word);
-                    // 公式整合
-                    //map.put(key, map.get(key) + d / size * (wordRankMap.get(term.word) == null ? 0 : wordRankMap.get(term.word)));
+                    // 公式整合(词性权重投票)
                     map.put(key, map.get(key) + d / size * (wordRankMap.get(term.word) == null ? 0 : wordRankMap.get(term.word) * innerWeight));
                 }
                 max_diff = Math.max(max_diff, Math.abs(map.get(key) - (wordRankMap.get(key) == null ? 0 : wordRankMap.get(key))));
@@ -203,12 +247,11 @@ public class TextrankOptimization {
         return wordWeightMap;
     }
 
-
     /**
      * 词性权重设定
      */
     private Map<String, Double> natureWeight() {
-        Map<String, Double> natureWeightMap = new HashMap<String, Double>();
+        Map<String, Double> natureWeightMap = new HashMap<>();
 
         // hanlp词性设置(hanlp中名词权重直接设为0.8)
         natureWeightMap.put("a", 0.5);    // 形容词
@@ -266,7 +309,7 @@ public class TextrankOptimization {
     }
 
     /**
-     * 文本过滤
+     * 文本过滤(仅取名词)
      */
     private boolean filterByWord(String word) {
         List<String> allowSpeechTagsList = Arrays.asList(allow_speech_tags);
@@ -275,8 +318,8 @@ public class TextrankOptimization {
             return true;
         } else {
             // 词性过滤&长度过滤&停用词过滤
-            return (allowSpeechTagsList.contains(pos) || String.valueOf(pos.charAt(0)).equals("n"))
-                    && word.trim().length() > 1
+            //return (allowSpeechTagsList.contains(pos) || String.valueOf(pos.charAt(0)).equals("n"))
+            return String.valueOf(pos.charAt(0)).equals("n") && word.trim().length() > 1
                     && !coreStopWordDictionary.contains(word);
         }
     }
@@ -284,7 +327,6 @@ public class TextrankOptimization {
     /**
      * Map排序
      *
-     * @pa
      */
     private Map<String, Double> sortMap(Map<String, Double> map) {
         Map<String, Double> sortedMap = new LinkedHashMap<>();
@@ -303,5 +345,24 @@ public class TextrankOptimization {
         return sortedMap;
     }
 
+    /**
+     * 获取字符串中子字符串出现的次数
+     */
+    private int getOccurNum(String str, String pattern) {
+        int count = 0;
+        int res = -1;
+        do {
+            res = str.indexOf(pattern);
+
+            if (res != -1) {
+                str = str.substring(res + pattern.length());
+                count++;
+            }
+
+        } while (res != -1);
+
+        return count;
+    }
 
 }
+
