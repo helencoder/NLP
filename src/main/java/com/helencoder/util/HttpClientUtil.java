@@ -1,5 +1,6 @@
 package com.helencoder.util;
 
+import com.helencoder.util.json.JSONObject;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -45,7 +46,8 @@ public class HttpClientUtil {
             try {
                 // 获取响应实体
                 HttpEntity entity = httpResponse.getEntity();
-                if (entity != null) {
+                int statusCode = httpResponse.getStatusLine().getStatusCode();
+                if (statusCode == 200 && entity != null) {
                     response = EntityUtils.toString(entity, Consts.UTF_8);
                 }
             } finally {
